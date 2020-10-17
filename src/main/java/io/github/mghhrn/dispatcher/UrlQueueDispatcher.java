@@ -1,6 +1,6 @@
 package io.github.mghhrn.dispatcher;
 
-import io.github.mghhrn.DocumentProvider;
+import io.github.mghhrn.worker.DocumentProvider;
 import org.jsoup.nodes.Document;
 
 import java.util.concurrent.BlockingQueue;

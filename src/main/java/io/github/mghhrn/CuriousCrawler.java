@@ -17,9 +17,10 @@ public class CuriousCrawler {
 
     public static void main( String[] args ) {
 
-        System.out.println("Enter the seed link:");
-        Scanner scanner = new Scanner(System.in);
-        String seedLink = scanner.nextLine();
+//        System.out.println("Enter the seed link:");
+//        Scanner scanner = new Scanner(System.in);
+//        String seedLink = scanner.nextLine();
+        String seedLink = "http://magento-test.finology.com.my/breathe-easy-tank.html";
 
         try {
             urlQueue.put(seedLink);

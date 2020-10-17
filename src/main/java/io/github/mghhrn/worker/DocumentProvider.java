@@ -1,4 +1,4 @@
-package io.github.mghhrn;
+package io.github.mghhrn.worker;
 
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 
