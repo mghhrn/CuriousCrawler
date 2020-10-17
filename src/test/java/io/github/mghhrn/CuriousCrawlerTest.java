@@ -9,8 +9,7 @@ public class CuriousCrawlerTest {
      * Rigorous Test :-)
      */
     @Test
-    public void shouldAnswerWithTrue()
-    {
+    public void shouldAnswerWithTrue() {
         assertTrue( true );
     }
 }
