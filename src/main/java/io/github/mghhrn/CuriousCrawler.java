@@ -5,15 +5,14 @@ import io.github.mghhrn.dispatcher.UrlQueueDispatcher;
 import org.jsoup.nodes.Document;
 
 import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class CuriousCrawler {
 
-    private static BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(10);
-    private static BlockingQueue<Document> documentQueue = new ArrayBlockingQueue<>(10);
+    private static final BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(10);
+    private static final BlockingQueue<Document> documentQueue = new ArrayBlockingQueue<>(10);
+
+    public static final ConcurrentHashMap<Integer, String> visitedUrls= new ConcurrentHashMap<>();
 
     public static void main( String[] args ) {
 

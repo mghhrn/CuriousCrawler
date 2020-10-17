@@ -22,8 +22,8 @@ public class DocumentConsumer implements Runnable {
 
         Elements elements = document.select("#maincontent > div.columns > div > div.product-info-main > div.page-title-wrapper.product > h1 > span");
         Element element = elements.get(0);
-        String elementText = element.text();
-        System.out.println("Product name: " + elementText);
+        String procutName = element.text();
+        System.out.println("Product name: " + procutName);
 
         element = document.selectFirst("span.price-container > span[id^=product-price-] > span");
         String productPrice = element.text();
