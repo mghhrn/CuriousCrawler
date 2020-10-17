@@ -1,5 +1,6 @@
 package io.github.mghhrn;
 
+import io.github.mghhrn.database.DatabaseUtil;
 import io.github.mghhrn.dispatcher.DocumentQueueDispatcher;
 import io.github.mghhrn.dispatcher.UrlQueueDispatcher;
 import org.jsoup.nodes.Document;
@@ -28,6 +29,8 @@ public class CuriousCrawler {
             return;
         }
 
+        DatabaseUtil.initializeDatabase();
+
         ExecutorService documentProviderExecutor = Executors.newFixedThreadPool(2);//2 Threads
         ExecutorService documentConsumerExecutor = Executors.newFixedThreadPool(2);//2 Threads
 
@@ -36,5 +39,9 @@ public class CuriousCrawler {
 
         urlQueueDispatcherThread.start();
         documentQueueDispatcherThread.start();
+    }
+
+    private void initializeDatabase() {
+
     }
 }

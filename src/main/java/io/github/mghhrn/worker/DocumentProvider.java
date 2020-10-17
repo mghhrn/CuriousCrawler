@@ -39,9 +39,6 @@ public class DocumentProvider implements Runnable {
             Document document;
             if (cachedFile.exists()) {
                 document = Jsoup.parse(cachedFile, "UTF-8", "http://magento-test.finology.com.my/");
-                // TODO: Remove below line for final code version. This is for endless loop prevention.
-                System.out.println("File " + webPageName + " is already cached. Ignoring further process.");
-                return;
             } else {
                 document = Jsoup.connect(url).get();
                 String fullPageContent = document.html();

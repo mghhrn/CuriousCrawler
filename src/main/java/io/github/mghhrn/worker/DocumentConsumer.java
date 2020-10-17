@@ -1,9 +1,14 @@
 package io.github.mghhrn.worker;
 
+import io.github.mghhrn.database.ProductDao;
+import io.github.mghhrn.entity.Product;
+import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class DocumentConsumer implements Runnable {
@@ -20,19 +25,25 @@ public class DocumentConsumer implements Runnable {
     public void run() {
         System.out.println("Starting to extract new links and product data from: " + document.title());
 
+        List<String> newUrls = extractOtherProductUrlsFrom(document);
+        for (String newUrl : newUrls) {
+            try {
+                urlQueue.put(newUrl);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         Elements elements = document.select("#maincontent > div.columns > div > div.product-info-main > div.page-title-wrapper.product > h1 > span");
         Element element = elements.get(0);
         String procutName = element.text();
-        System.out.println("Product name: " + procutName);
 
         element = document.selectFirst("span.price-container > span[id^=product-price-] > span");
         String productPrice = element.text();
-        System.out.println("Product price: " + productPrice);
 
         elements = document.select("#description > div > div > p");
         StringBuilder productDescriptionSB = new StringBuilder();
         elements.forEach(e -> productDescriptionSB.append(e.text()).append(" "));
-        System.out.println("Product description: " + productDescriptionSB.toString());
 
         elements = document.select("#product-attribute-specs-table > tbody > tr");
         StringBuilder productExtraInformationSB = new StringBuilder();
@@ -47,6 +58,22 @@ public class DocumentConsumer implements Runnable {
                 productExtraInformationSB.append(" | ");
             }
         }
-        System.out.println("Product extra information: " + productExtraInformationSB.toString());
+
+        Product product = new Product(procutName, productPrice, productDescriptionSB.toString(), productExtraInformationSB.toString());
+        ProductDao.save(product);
+        System.out.println(product);
+    }
+
+    private List<String> extractOtherProductUrlsFrom(Document document) {
+        List<String> urlList = new ArrayList<>();
+        Elements elements = document.select("#maincontent > div.columns > div > div.block.related > div.block-content.content > div > ol > li");
+        for (Element e : elements) {
+            Element linkElement = e.selectFirst("div > a");
+            String newUrl = linkElement.attr("href");
+            if (!StringUtil.isBlank(newUrl)) {
+                urlList.add(newUrl);
+            }
+        }
+        return urlList;
     }
 }
