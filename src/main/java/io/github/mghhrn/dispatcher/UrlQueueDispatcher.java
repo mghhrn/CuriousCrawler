@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class UrlQueueDispatcher implements Runnable {
 
@@ -22,14 +23,16 @@ public class UrlQueueDispatcher implements Runnable {
 
     @Override
     public void run() {
-        String url = null;
         while (true) {
+            String url = null;
             try {
                 url = urlQueue.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            documentProviderExecutor.submit(new DocumentProvider(url, cacheDirectoryName, documentQueue));
+            if (url != null) {
+                Future<?> future = documentProviderExecutor.submit(new DocumentProvider(url, cacheDirectoryName, documentQueue));
+            }
         }
     }
 }

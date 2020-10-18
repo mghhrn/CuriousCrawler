@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class DocumentQueueDispatcher implements Runnable {
 
@@ -20,14 +21,16 @@ public class DocumentQueueDispatcher implements Runnable {
 
     @Override
     public void run() {
-        Document document = null;
         while (true) {
+            Document document = null;
             try {
                 document = documentQueue.take();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            documentConsumerExecutor.submit(new DocumentConsumer(document, urlQueue));
+            if (document != null) {
+                Future<?> future = documentConsumerExecutor.submit(new DocumentConsumer(document, urlQueue));
+            }
         }
     }
 }

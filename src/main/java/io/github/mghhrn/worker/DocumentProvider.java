@@ -28,7 +28,6 @@ public class DocumentProvider implements Runnable {
 
     @Override
     public void run() {
-//        System.out.println("Starting to provide the document of: " + url);
         String alreadyVisitedUrl = visitedUrls.putIfAbsent(url.hashCode(), url);
         if (alreadyVisitedUrl != null) {
             return;
