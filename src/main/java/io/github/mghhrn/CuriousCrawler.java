@@ -34,11 +34,24 @@ public class CuriousCrawler {
         ExecutorService documentProviderExecutor = Executors.newFixedThreadPool(2);//2 Threads
         ExecutorService documentConsumerExecutor = Executors.newFixedThreadPool(2);//2 Threads
 
+
         Thread urlQueueDispatcherThread = new Thread(new UrlQueueDispatcher(urlQueue, documentQueue, documentProviderExecutor));
         Thread documentQueueDispatcherThread = new Thread(new DocumentQueueDispatcher(urlQueue, documentQueue, documentConsumerExecutor));
 
         urlQueueDispatcherThread.start();
         documentQueueDispatcherThread.start();
+
+        while (true) {
+            if (urlQueue.isEmpty() && documentQueue.isEmpty()) {
+                try {
+                    documentConsumerExecutor.awaitTermination(1, TimeUnit.SECONDS)
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    System.exit(0);
+                }
+            }
+        }
     }
 
     private void initializeDatabase() {

@@ -10,7 +10,8 @@ import java.sql.Statement;
 
 public class DatabaseUtil {
 
-    private static final String databaseDirectoryPath = "/tmp/curious-crawler/db";
+    private static final String rootPath = "/tmp/curious-crawler";
+    private static final String databaseDirectoryPath = rootPath + "/db";
     private static final String databaseUrl = "jdbc:sqlite:/tmp/curious-crawler/db/crawler.db";
 
     private static final String dropProductTableSql = "DROP TABLE IF EXISTS product";
@@ -21,10 +22,10 @@ public class DatabaseUtil {
                                                             "extra_information TEXT )";
 
     public static void initializeDatabase() {
-        File dbDirectory = new File(databaseDirectoryPath);
-        if (!dbDirectory.exists()) {
-            dbDirectory.mkdir();
-        }
+
+        createDirectoryIfNotExisted(rootPath);
+        createDirectoryIfNotExisted(databaseDirectoryPath);
+
         try (Connection conn = DriverManager.getConnection(databaseUrl);
                 Statement statement = conn.createStatement()) {
             statement.executeUpdate(dropProductTableSql);
@@ -42,5 +43,12 @@ public class DatabaseUtil {
             System.out.println(e.getMessage());
         }
         return connection;
+    }
+
+    private static void createDirectoryIfNotExisted(String directoryPath) {
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
     }
 }

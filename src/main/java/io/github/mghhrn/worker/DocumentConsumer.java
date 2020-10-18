@@ -23,7 +23,7 @@ public class DocumentConsumer implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Starting to extract new links and product data from: " + document.title());
+//        System.out.println("Starting to extract new links and product data from: " + document.title());
 
         List<String> newUrls = extractOtherProductUrlsFrom(document);
         for (String newUrl : newUrls) {
