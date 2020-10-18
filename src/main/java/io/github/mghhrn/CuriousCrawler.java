@@ -9,12 +9,10 @@ import java.util.concurrent.*;
 
 public class CuriousCrawler {
 
-    private static final BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(10);
-    private static final BlockingQueue<Document> documentQueue = new ArrayBlockingQueue<>(10);
-
-    public static final ConcurrentHashMap<Integer, String> visitedUrls= new ConcurrentHashMap<>();
-
     public static void main( String[] args ) {
+
+        BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(10);
+        BlockingQueue<Document> documentQueue = new ArrayBlockingQueue<>(10);
 
 //        System.out.println("Enter the seed link:");
 //        Scanner scanner = new Scanner(System.in);

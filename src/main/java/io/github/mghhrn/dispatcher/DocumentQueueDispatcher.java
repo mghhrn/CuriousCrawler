@@ -5,7 +5,6 @@ import org.jsoup.nodes.Document;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class DocumentQueueDispatcher implements Runnable {
 
@@ -29,7 +28,7 @@ public class DocumentQueueDispatcher implements Runnable {
                 e.printStackTrace();
             }
             if (document != null) {
-                Future<?> future = documentConsumerExecutor.submit(new DocumentConsumer(document, urlQueue));
+                documentConsumerExecutor.submit(new DocumentConsumer(document, urlQueue));
             }
         }
     }

@@ -13,6 +13,11 @@ import java.util.concurrent.BlockingQueue;
 
 public class DocumentConsumer implements Runnable {
 
+    private static final String productNameCssQuery = "#maincontent > div.columns > div > div.product-info-main > div.page-title-wrapper.product > h1 > span";
+    private static final String productPriceCssQuery = "span.price-container > span[id^=product-price-] > span";
+    private static final String productDescriptionCssQuery = "#description > div > div > p";
+    private static final String productExtraInformationCssQuery = "#product-attribute-specs-table > tbody > tr";
+
     private final Document document;
     private final BlockingQueue<String> urlQueue;
 
@@ -23,43 +28,14 @@ public class DocumentConsumer implements Runnable {
 
     @Override
     public void run() {
-//        System.out.println("Starting to extract new links and product data from: " + document.title());
-
         List<String> newUrls = extractOtherProductUrlsFrom(document);
-        for (String newUrl : newUrls) {
-            try {
-                urlQueue.put(newUrl);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        addUrlsToUrlQueue(newUrls, urlQueue);
 
-        Elements elements = document.select("#maincontent > div.columns > div > div.product-info-main > div.page-title-wrapper.product > h1 > span");
-        Element element = elements.get(0);
-        String procutName = element.text();
-
-        element = document.selectFirst("span.price-container > span[id^=product-price-] > span");
-        String productPrice = element.text();
-
-        elements = document.select("#description > div > div > p");
-        StringBuilder productDescriptionSB = new StringBuilder();
-        elements.forEach(e -> productDescriptionSB.append(e.text()).append(" "));
-
-        elements = document.select("#product-attribute-specs-table > tbody > tr");
-        StringBuilder productExtraInformationSB = new StringBuilder();
-        int lastElementCounter = elements.size();
-        for(Element e : elements) {
-            productExtraInformationSB
-                    .append(e.selectFirst("th").text())
-                    .append(": ")
-                    .append(e.selectFirst("td").text());
-            lastElementCounter--;
-            if (lastElementCounter != 0) {
-                productExtraInformationSB.append(" | ");
-            }
-        }
-
-        Product product = new Product(procutName, productPrice, productDescriptionSB.toString(), productExtraInformationSB.toString());
+        String procutName = extractProductName(document);
+        String productPrice = extractProductPrice(document);
+        String productDescription = extractProductDescription(document);
+        String productExtraInformation = extractProductExtraInformation(document);
+        Product product = new Product(procutName, productPrice, productDescription, productExtraInformation);
         ProductDao.save(product);
         System.out.println(product);
     }
@@ -75,5 +51,49 @@ public class DocumentConsumer implements Runnable {
             }
         }
         return urlList;
+    }
+
+    private void addUrlsToUrlQueue(List<String> urlList, BlockingQueue<String> urlQueue) {
+        for (String url : urlList) {
+            try {
+                urlQueue.put(url);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String extractProductName(Document document) {
+        return document.selectFirst(productNameCssQuery).text();
+    }
+
+    private String extractProductPrice(Document document) {
+        return document.selectFirst(productPriceCssQuery).text();
+    }
+
+    private String extractProductDescription(Document document) {
+        Elements elements;
+        elements = document.select(productDescriptionCssQuery);
+        StringBuilder productDescriptionSB = new StringBuilder();
+        elements.forEach(e -> productDescriptionSB.append(e.text()).append(" "));
+        return productDescriptionSB.toString();
+    }
+
+    private String extractProductExtraInformation(Document document) {
+        Elements elements;
+        elements = document.select(productExtraInformationCssQuery);
+        StringBuilder productExtraInformationSB = new StringBuilder();
+        int lastElementCounter = elements.size();
+        for(Element e : elements) {
+            productExtraInformationSB
+                    .append(e.selectFirst("th").text())
+                    .append(": ")
+                    .append(e.selectFirst("td").text());
+            lastElementCounter--;
+            if (lastElementCounter != 0) {
+                productExtraInformationSB.append(" | ");
+            }
+        }
+        return productExtraInformationSB.toString();
     }
 }

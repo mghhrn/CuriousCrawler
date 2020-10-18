@@ -1,6 +1,5 @@
 package io.github.mghhrn.worker;
 
-import io.github.mghhrn.CuriousCrawler;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,8 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
-
-import static io.github.mghhrn.CuriousCrawler.visitedUrls;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DocumentProvider implements Runnable {
 
@@ -18,18 +16,19 @@ public class DocumentProvider implements Runnable {
     private final BlockingQueue<Document> documentQueue;
     private final String cacheDirectoryName;
     private final String cacheDirectoryFullPath;
+    private final ConcurrentHashMap<Integer, String> visitedUrls;
 
-    public DocumentProvider(String url, String cacheDirectoryName, BlockingQueue<Document> documentQueue) {
+    public DocumentProvider(String url, String cacheDirectoryName, BlockingQueue<Document> documentQueue, ConcurrentHashMap<Integer, String> visitedUrls) {
         this.url = url;
         this.cacheDirectoryName = cacheDirectoryName;
         this.documentQueue = documentQueue;
         this.cacheDirectoryFullPath = FileUtils.getTempDirectoryPath() + File.separator + cacheDirectoryName + File.separator;
+        this.visitedUrls = visitedUrls;
     }
 
     @Override
     public void run() {
-        String alreadyVisitedUrl = visitedUrls.putIfAbsent(url.hashCode(), url);
-        if (alreadyVisitedUrl != null) {
+        if (isUrlVisited(url)) {
             return;
         }
         try {
@@ -37,15 +36,34 @@ public class DocumentProvider implements Runnable {
             File cachedFile = new File(cacheDirectoryFullPath + webPageName);
             Document document;
             if (cachedFile.exists()) {
-                document = Jsoup.parse(cachedFile, "UTF-8", "http://magento-test.finology.com.my/");
+                document = loadDocumentFromCache(cachedFile);
             } else {
-                document = Jsoup.connect(url).get();
-                String fullPageContent = document.html();
-                FileUtils.writeStringToFile(cachedFile, fullPageContent, StandardCharsets.UTF_8);
+                document = downloadDocumentAndCacheToTheFile(url, cachedFile);
             }
             documentQueue.put(document);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isUrlVisited(String url) {
+        String alreadyVisitedUrl = visitedUrls.putIfAbsent(url.hashCode(), url);
+        if (alreadyVisitedUrl != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Document loadDocumentFromCache(File cachedFile) throws IOException {
+        return Jsoup.parse(cachedFile, "UTF-8", "http://magento-test.finology.com.my/");
+    }
+
+    private Document downloadDocumentAndCacheToTheFile(String documentUrl, File cachedFile) throws IOException {
+        Document document;
+        document = Jsoup.connect(documentUrl).get();
+        String fullPageContent = document.html();
+        FileUtils.writeStringToFile(cachedFile, fullPageContent, StandardCharsets.UTF_8);
+        return document;
     }
 }
