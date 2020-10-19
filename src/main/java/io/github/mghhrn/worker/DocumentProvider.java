@@ -48,11 +48,7 @@ public class DocumentProvider implements Runnable {
 
     private boolean isUrlVisited(String url) {
         String alreadyVisitedUrl = visitedUrls.putIfAbsent(url.hashCode(), url);
-        if (alreadyVisitedUrl != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return alreadyVisitedUrl != null;
     }
 
     private Document loadDocumentFromCache(File cachedFile) throws IOException {

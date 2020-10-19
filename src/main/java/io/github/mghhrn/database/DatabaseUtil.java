@@ -1,8 +1,5 @@
 package io.github.mghhrn.database;
 
-import io.github.mghhrn.CuriousCrawler;
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,7 +25,6 @@ public class DatabaseUtil {
                                                             "extra_information TEXT )";
 
     public static void initializeDatabase() {
-
         createDirectoryIfNotExisted(ROOT_STORAGE_PATH);
         createDirectoryIfNotExisted(databaseRootPath);
 
