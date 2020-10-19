@@ -15,10 +15,11 @@ import static io.github.mghhrn.database.DatabaseUtil.initializeDatabase;
 public class CuriousCrawler {
 
     public static final String ROOT_STORAGE_PATH = FileUtils.getTempDirectoryPath() + File.separator + "curious-crawler";
+    public static int QUEUE_LENGTH = 30;
 
     public static void main( String[] args ) {
-        BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(10);
-        BlockingQueue<Document> documentQueue = new ArrayBlockingQueue<>(10);
+        BlockingQueue<String> urlQueue = new ArrayBlockingQueue<>(QUEUE_LENGTH);
+        BlockingQueue<Document> documentQueue = new ArrayBlockingQueue<>(QUEUE_LENGTH);
         ConcurrentLinkedDeque<Future<?>> workersFuture = new ConcurrentLinkedDeque<>();
         int threadNumber = getBestExecutorThreadNumber();
         ExecutorService documentProviderExecutor = Executors.newFixedThreadPool(threadNumber);
@@ -32,7 +33,9 @@ public class CuriousCrawler {
         urlDispatcherThread.start();
         documentDispatcherThread.start();
 
-        waitAndFinish(urlQueue, documentQueue, urlDispatcherThread, documentDispatcherThread, workersFuture);
+        waitForFinish(urlQueue, documentQueue, urlDispatcherThread, documentDispatcherThread, workersFuture, 2000L);
+        System.out.println("Crawling has been finished!");
+        System.exit(0);
     }
 
 
@@ -42,7 +45,6 @@ public class CuriousCrawler {
             urlQueue.put(seedLink);
         } catch (InterruptedException e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -53,14 +55,15 @@ public class CuriousCrawler {
     }
 
 
-    private static void waitAndFinish(BlockingQueue<String> urlQueue,
+    private static boolean waitForFinish(BlockingQueue<String> urlQueue,
                                       BlockingQueue<Document> documentQueue,
                                       Thread urlDispatcherThread,
                                       Thread documentDispatcherThread,
-                                      ConcurrentLinkedDeque<Future<?>> workersFuture) {
+                                      ConcurrentLinkedDeque<Future<?>> workersFuture,
+                                      Long waitDuration) {
         while (true) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(waitDuration);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -70,8 +73,7 @@ public class CuriousCrawler {
                     urlDispatcherThread.getState().equals(Thread.State.WAITING) &&
                     documentDispatcherThread.getState().equals(Thread.State.WAITING) &&
                     workersFuture.isEmpty()) {
-                System.out.println("Crawling has finished!");
-                System.exit(0);
+                return true;
             }
         }
     }
