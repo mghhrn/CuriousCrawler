@@ -2,8 +2,6 @@ package io.github.mghhrn.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @Getter
 @AllArgsConstructor

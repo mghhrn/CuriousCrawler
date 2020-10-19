@@ -17,6 +17,7 @@ public class DocumentConsumer implements Runnable {
     private static final String productPriceCssQuery = "span.price-container > span[id^=product-price-] > span";
     private static final String productDescriptionCssQuery = "#description > div > div > p";
     private static final String productExtraInformationCssQuery = "#product-attribute-specs-table > tbody > tr";
+    private static final String otherLinksCssQuery = "#maincontent > div.columns > div > div.block.related > div.block-content.content > div > ol > li";
 
     private final Document document;
     private final BlockingQueue<String> urlQueue;
@@ -30,19 +31,18 @@ public class DocumentConsumer implements Runnable {
     public void run() {
         List<String> newUrls = extractOtherProductUrlsFrom(document);
         addUrlsToUrlQueue(newUrls, urlQueue);
-
-        String procutName = extractProductName(document);
+        String productName = extractProductName(document);
         String productPrice = extractProductPrice(document);
         String productDescription = extractProductDescription(document);
         String productExtraInformation = extractProductExtraInformation(document);
-        Product product = new Product(procutName, productPrice, productDescription, productExtraInformation);
+        Product product = new Product(productName, productPrice, productDescription, productExtraInformation);
         ProductDao.save(product);
         System.out.println(product);
     }
 
     private List<String> extractOtherProductUrlsFrom(Document document) {
         List<String> urlList = new ArrayList<>();
-        Elements elements = document.select("#maincontent > div.columns > div > div.block.related > div.block-content.content > div > ol > li");
+        Elements elements = document.select(otherLinksCssQuery);
         for (Element e : elements) {
             Element linkElement = e.selectFirst("div > a");
             String newUrl = linkElement.attr("href");

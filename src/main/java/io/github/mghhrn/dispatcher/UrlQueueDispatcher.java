@@ -3,7 +3,6 @@ package io.github.mghhrn.dispatcher;
 import io.github.mghhrn.worker.DocumentProvider;
 import org.jsoup.nodes.Document;
 
-import java.io.File;
 import java.util.concurrent.*;
 
 public class UrlQueueDispatcher implements Runnable {
@@ -13,7 +12,6 @@ public class UrlQueueDispatcher implements Runnable {
     private final ConcurrentLinkedDeque<Future<?>> workersFuture;
     private final ExecutorService documentProviderExecutor;
     private final ConcurrentHashMap<Integer, String> visitedUrls = new ConcurrentHashMap<>();
-    private final String cacheDirectoryName = "curious-crawler" + File.separator + "cache";
 
     public UrlQueueDispatcher(BlockingQueue<String> urlQueue, BlockingQueue<Document> documentQueue, ConcurrentLinkedDeque<Future<?>> workersFuture, ExecutorService documentProviderExecutor) {
         this.urlQueue = urlQueue;
@@ -32,7 +30,7 @@ public class UrlQueueDispatcher implements Runnable {
                 e.printStackTrace();
             }
             if (url != null) {
-                Future<?> future = documentProviderExecutor.submit(new DocumentProvider(url, cacheDirectoryName, documentQueue, visitedUrls));
+                Future<?> future = documentProviderExecutor.submit(new DocumentProvider(url, documentQueue, visitedUrls));
                 workersFuture.addLast(future);
             }
         }

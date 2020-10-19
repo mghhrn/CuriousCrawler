@@ -1,16 +1,24 @@
 package io.github.mghhrn.database;
 
+import io.github.mghhrn.CuriousCrawler;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static io.github.mghhrn.CuriousCrawler.ROOT_STORAGE_PATH;
+
 public class DatabaseUtil {
 
-    private static final String rootPath = "/tmp/curious-crawler";
-    private static final String databaseDirectoryPath = rootPath + "/db";
-    private static final String databaseUrl = "jdbc:sqlite:/tmp/curious-crawler/db/crawler.db";
+    private static final String databaseRootPath = ROOT_STORAGE_PATH + File.separator + "db";
+
+    /*
+     * In Linux systems it will be: "jdbc:sqlite:/tmp/curious-crawler/db/crawler.db"
+     */
+    private static final String databaseUrl = "jdbc:sqlite:" + databaseRootPath + File.separator + "crawler.db";
 
     private static final String dropProductTableSql = "DROP TABLE IF EXISTS product";
     private static final String createProductTableSql = "CREATE TABLE IF NOT EXISTS product ( \n" +
@@ -21,8 +29,8 @@ public class DatabaseUtil {
 
     public static void initializeDatabase() {
 
-        createDirectoryIfNotExisted(rootPath);
-        createDirectoryIfNotExisted(databaseDirectoryPath);
+        createDirectoryIfNotExisted(ROOT_STORAGE_PATH);
+        createDirectoryIfNotExisted(databaseRootPath);
 
         try (Connection conn = DriverManager.getConnection(databaseUrl);
                 Statement statement = conn.createStatement()) {

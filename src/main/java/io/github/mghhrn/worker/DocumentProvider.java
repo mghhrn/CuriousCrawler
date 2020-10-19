@@ -10,19 +10,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.github.mghhrn.CuriousCrawler.ROOT_STORAGE_PATH;
+
 public class DocumentProvider implements Runnable {
 
     private final String url;
     private final BlockingQueue<Document> documentQueue;
-    private final String cacheDirectoryName;
-    private final String cacheDirectoryFullPath;
+    private final String cacheDirectoryPath;
     private final ConcurrentHashMap<Integer, String> visitedUrls;
 
-    public DocumentProvider(String url, String cacheDirectoryName, BlockingQueue<Document> documentQueue, ConcurrentHashMap<Integer, String> visitedUrls) {
+    public DocumentProvider(String url, BlockingQueue<Document> documentQueue, ConcurrentHashMap<Integer, String> visitedUrls) {
         this.url = url;
-        this.cacheDirectoryName = cacheDirectoryName;
         this.documentQueue = documentQueue;
-        this.cacheDirectoryFullPath = FileUtils.getTempDirectoryPath() + File.separator + cacheDirectoryName + File.separator;
+        this.cacheDirectoryPath = ROOT_STORAGE_PATH + File.separator + "cache";
         this.visitedUrls = visitedUrls;
     }
 
@@ -33,7 +33,7 @@ public class DocumentProvider implements Runnable {
         }
         try {
             String webPageName = url.substring(url.lastIndexOf('/') + 1);
-            File cachedFile = new File(cacheDirectoryFullPath + webPageName);
+            File cachedFile = new File(cacheDirectoryPath + File.separator + webPageName);
             Document document;
             if (cachedFile.exists()) {
                 document = loadDocumentFromCache(cachedFile);

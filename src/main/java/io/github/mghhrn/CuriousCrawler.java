@@ -3,13 +3,17 @@ package io.github.mghhrn;
 import io.github.mghhrn.database.DatabaseUtil;
 import io.github.mghhrn.dispatcher.DocumentQueueDispatcher;
 import io.github.mghhrn.dispatcher.UrlQueueDispatcher;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class CuriousCrawler {
+
+    public static final String ROOT_STORAGE_PATH = FileUtils.getTempDirectoryPath() + File.separator + "curious-crawler";
 
     public static void main( String[] args ) {
 
@@ -57,6 +61,7 @@ public class CuriousCrawler {
                     urlDispatcherThread.getState().equals(Thread.State.WAITING) &&
                     documentDispatcherThread.getState().equals(Thread.State.WAITING) &&
                     workersFuture.isEmpty()) {
+                System.out.println("Crawling has finished!");
                 System.exit(0);
             }
         }
