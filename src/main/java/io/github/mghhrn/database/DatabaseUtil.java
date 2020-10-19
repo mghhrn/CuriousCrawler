@@ -1,7 +1,5 @@
 package io.github.mghhrn.database;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
