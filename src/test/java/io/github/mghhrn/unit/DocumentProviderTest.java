@@ -44,6 +44,33 @@ public class DocumentProviderTest {
     }
 
     @Test
+    public void given_cachedLink_when_loadDocumentFromCache_then_loadDocumentFromCache() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String url = "http://magento-test.finology.com.my/breathe-easy-tank.html";
+        String cacheDirectory = ROOT_STORAGE_PATH + File.separator + "cache";
+        FileUtils.deleteDirectory(new File(ROOT_STORAGE_PATH));
+        DatabaseUtil.createDirectoryIfNotExisted(ROOT_STORAGE_PATH);
+        DatabaseUtil.createDirectoryIfNotExisted(cacheDirectory);
+        ClassLoader classLoader = getClass().getClassLoader();
+        File resourceFile = new File(classLoader.getResource("cache/breathe-easy-tank.html").getFile());
+        File cachedFile = new File(cacheDirectory + File.separator + "breathe-easy-tank.html");
+
+        assertThat(cachedFile.exists()).isFalse();
+
+        FileUtils.copyFile(resourceFile, cachedFile);
+
+        assertThat(cachedFile.exists()).isTrue();
+
+        DocumentProvider documentProvider = new DocumentProvider(null, null, null);
+        Method method = documentProvider.getClass().getDeclaredMethod("loadDocumentFromCache", File.class);
+        method.setAccessible(true);
+        Object result = method.invoke(documentProvider, cachedFile);
+        Document document = (Document) result;
+
+        assertThat(result).isNotNull();
+        assertThat(document.title()).isEqualTo("Breathe-Easy Tank");
+    }
+
+    @Test
     public void given_nonCachedLinkAndEmptyCache_when_downloadDocumentAndCacheToTheFile_then_saveFileInCacheAndReturnNonNullDocument() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String url = "http://magento-test.finology.com.my/breathe-easy-tank.html";
         FileUtils.deleteDirectory(new File(ROOT_STORAGE_PATH));
@@ -57,11 +84,9 @@ public class DocumentProviderTest {
         Method method = documentProvider.getClass().getDeclaredMethod("downloadDocumentAndCacheToTheFile", String.class, File.class);
         method.setAccessible(true);
         Object result = method.invoke(documentProvider, url, cachedFile);
-
-        assertThat(result).isNotNull();
-
         Document document = (Document) result;
 
+        assertThat(result).isNotNull();
         assertThat(document.title()).isEqualTo("Breathe-Easy Tank");
         assertThat(cachedFile.exists()).isTrue();
     }
