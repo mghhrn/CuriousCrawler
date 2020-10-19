@@ -47,7 +47,7 @@ public class DatabaseUtil {
         return connection;
     }
 
-    private static void createDirectoryIfNotExisted(String directoryPath) {
+    public static void createDirectoryIfNotExisted(String directoryPath) {
         File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdir();

@@ -1,5 +1,6 @@
-package io.github.mghhrn;
+package io.github.mghhrn.unit;
 
+import io.github.mghhrn.CuriousCrawler;
 import io.github.mghhrn.dispatcher.DocumentQueueDispatcher;
 import io.github.mghhrn.dispatcher.UrlQueueDispatcher;
 import org.jsoup.nodes.Document;
