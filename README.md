@@ -1,6 +1,6 @@
 # CuriousCrawler
 
-To run this application you need to have Java 11.
+To run this application you need to have Java 12.
 
 Run the application by executing below commands in the root directory of the project:
 
