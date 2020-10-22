@@ -33,12 +33,12 @@ public class DocumentProvider implements Runnable {
         }
         try {
             String webPageName = url.substring(url.lastIndexOf('/') + 1);
-            File cachedFile = new File(cacheDirectoryPath + File.separator + webPageName);
+            File probablyCachedFile = new File(cacheDirectoryPath + File.separator + webPageName);
             Document document;
-            if (cachedFile.exists()) {
-                document = loadDocumentFromCache(cachedFile);
+            if (probablyCachedFile.exists()) {
+                document = loadDocumentFromCache(probablyCachedFile);
             } else {
-                document = downloadDocumentAndCacheToTheFile(url, cachedFile);
+                document = downloadDocumentAndCacheToTheFile(url, probablyCachedFile);
             }
             documentQueue.put(document);
         } catch (IOException | InterruptedException e) {

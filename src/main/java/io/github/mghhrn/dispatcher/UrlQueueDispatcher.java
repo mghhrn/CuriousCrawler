@@ -35,4 +35,8 @@ public class UrlQueueDispatcher implements Runnable {
             }
         }
     }
+
+    public int currentNumberOfVisitedUrls() {
+        return visitedUrls.size();
+    }
 }

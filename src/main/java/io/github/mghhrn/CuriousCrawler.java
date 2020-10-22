@@ -24,8 +24,10 @@ public class CuriousCrawler {
         int threadNumber = getBestExecutorThreadNumber();
         ExecutorService documentProviderExecutor = Executors.newFixedThreadPool(threadNumber);
         ExecutorService documentConsumerExecutor = Executors.newFixedThreadPool(threadNumber);
-        Thread urlDispatcherThread = new Thread(new UrlQueueDispatcher(urlQueue, documentQueue, workersFuture, documentProviderExecutor));
-        Thread documentDispatcherThread = new Thread(new DocumentQueueDispatcher(urlQueue, documentQueue, workersFuture, documentConsumerExecutor));
+        UrlQueueDispatcher urlQueueDispatcher = new UrlQueueDispatcher(urlQueue, documentQueue, workersFuture, documentProviderExecutor);
+        DocumentQueueDispatcher documentQueueDispatcher = new DocumentQueueDispatcher(urlQueue, documentQueue, workersFuture, documentConsumerExecutor);
+        Thread urlDispatcherThread = new Thread(urlQueueDispatcher);
+        Thread documentDispatcherThread = new Thread(documentQueueDispatcher);
 
         initializeSeedLink(urlQueue);
         initializeDatabase();
@@ -34,7 +36,7 @@ public class CuriousCrawler {
         documentDispatcherThread.start();
 
         waitForFinish(urlQueue, documentQueue, urlDispatcherThread, documentDispatcherThread, workersFuture, 2000L);
-        System.out.println("Crawling has been finished!");
+        System.out.printf("Crawling has been finished!\nTotal number of unique products that are extracted is %d.\n", urlQueueDispatcher.currentNumberOfVisitedUrls());
         System.exit(0);
     }
 
@@ -60,10 +62,10 @@ public class CuriousCrawler {
                                       Thread urlDispatcherThread,
                                       Thread documentDispatcherThread,
                                       ConcurrentLinkedDeque<Future<?>> workersFuture,
-                                      Long waitDuration) {
+                                      Long iterationWaitDuration) {
         while (true) {
             try {
-                Thread.sleep(waitDuration);
+                Thread.sleep(iterationWaitDuration);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
